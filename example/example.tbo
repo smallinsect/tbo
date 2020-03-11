@@ -1,0 +1,764 @@
+############# 文件集 ###############
+
+@execl Fg ["example/xlsx/[A-Z].*.xlsx" "example/xlsx/*.xls"]
+
+
+############# 类型 ##################
+
+
+# 宝箱奖励
+@type BOX {
+	id  : uint				# 对应商品id 
+	num : uint				# 数量
+}
+
+# 键值对
+@type KV {
+	key   : uint   			# 键
+	value : uint|float      # 值
+}
+
+# 范围
+@type Range {
+	min        : uint       # 最小值
+	max        : uint       # 最大值
+}
+
+# 键范围
+@type KRange {
+	key        : uint       # 值
+	min        : uint       # 最小值
+	max        : uint       # 最大值
+}
+
+# 权重
+@type Weight {
+	weight  : uint          # 权重
+	value   : uint          # 值
+}
+
+# 权重键值对
+@type WeightKV {
+	weight  : uint          # 权重
+	key     : uint          # 键
+	value   : uint          # 值
+}
+
+# 权重键值对列表
+@type WeightKVs {
+	weight  : uint          # 权重
+	kvs     : array(KV)     # 键值对列表
+}
+
+# 权重键范围
+@type WeightKRange {
+	weight     : uint       # 权重
+	key        : uint       # 键
+	min        : uint       # 最小值
+	max        : uint       # 最大值
+}
+
+# 价格类型
+@type Price {
+	typ    : int            # 货币类型
+	number : int            # 货币数量
+}
+
+# key 对应的价格
+@type KPrice {
+	key    : uint              # 条数
+	price  : Price
+}
+
+
+# 倍数概率
+@type MultipleProb {
+	mut  : uint             # 倍数
+	prob : uint             # 概率
+}
+
+# 全局配置 
+@type Global <Fg.Global[A B][2.] = map(string: PreView | \ 
+											   array(KV.key) | \
+											   array(KPrice.key) | \ 
+											   array(KRange.key) | \ 
+											   array(uint) | Range | map(uint:uint|float))>
+
+# 预览
+@type PreView {
+	ax : uint
+	bx : uint
+	cx : uint
+	dx : uint
+	fx : uint
+	gx : uint
+}
+
+# 品质枚举
+@type ColorEnum <Fg.GlobalEnum[I J K][17.22] = enum(uint)>
+
+# 资源枚举
+@type ResEnum <Fg.GlobalEnum[E F G][2.5] = enum(uint)>
+
+# 使用类型枚举
+@type UseTypeEnum <Fg.GlobalEnum[I J K][2.5] = enum(uint)>
+
+# 货币枚举
+@type CoinEnum <Fg.GlobalEnum[A B C][17.18] = enum(uint)> 
+
+# 属性枚举
+@type AttrEnum <Fg.AttrEnum[A B C][2.] = enum(uint)>
+
+# 消息枚举
+@type MessageEnum <Fg.Message[A B D][2.] = enum(uint)>
+
+# 消息提示
+@type MessageTips {
+	code  		  : uint  `lua:ignoreIndex`    		# 编码
+	displayType   : uint      					    # 显示类型
+	desc   		  : string    						# 描述
+}
+
+# 消息提示
+@type CodeMessageTips <Fg.Message[B C D][2.] = array(MessageTips.code)>
+
+# 活动时间
+@type ActivityTime {
+	sh : uint				# 开始小时
+	sm : uint				# 开始分钟
+	eh : uint				# 截止小时
+	em : uint				# 截止分钟
+}
+
+# 格子类型
+@type Grid {
+	id       : uint # 格子的唯一id
+	category : uint
+	type     : uint
+	pos      : uint `erl:ignore`
+	price    : Price
+}
+
+# 格子数据
+@type Grids <Fg.Grid[A.E][3.] = array(Grid.id)>
+
+# 物品类型
+@type Goods {
+	id          : uint                     #
+	icon        : string  `erl:ignore`     #
+	name 	    : string  `erl:ignore`     #
+	category    : uint                     #
+	typ         : uint                     #
+	useLevel    : uint                     # 使用等级
+	itemLevel   : uint                     # 物品等级
+	effect      : <FixedGifts> | <RandomGifts> | <Equips> | KV | uint `lua:skipIndex=all`   # 效果
+	effectDesc  : string  `erl:ignore`     #
+	isSell      : bool                     # 是否可以出售
+	sellPrice   : Price                    # 出售价格
+	color       : uint                     # 品质
+	overlay		: uint  				   # 重叠
+	existTime	: uint                     # 存在时间
+	cdTime      : uint                     # 冷却时间
+	useType     : array(uint)              # 使用方式
+	uiSkip      : uint    `erl:ignore`     #
+	allUse      : bool                     # 是否可以一键使用
+	res         : uint    `erl:ignore`     # 资源id
+	desc        : string  `erl:ignore`     #
+	gain        : string  `erl:ignore`     # 
+}
+
+# 物品数据
+@type IDGoods <Fg.Goods[A.U][3.] = array(Goods.id)> 
+
+# 固定礼包
+@type FixedGift {
+	id       : uint                     # 
+	rewards  : array(KV)                # 奖励列表 
+}
+
+# 固定礼包
+@type FixedGifts <Fg.FixedGift[B.C][3.] = array(FixedGift.id)>
+
+# 随机礼包
+@type RandomGift {
+	id       : uint                     #
+	number   : uint                     # 开包次数         
+	rewards  : array(WeightKV)          # 随机奖励列表
+}
+
+# 随机礼包
+@type RandomGifts <Fg.RandomGift[B.D][3.] = array(RandomGift.id)>
+
+# 装备
+@type Equip {
+	id		   : uint                   #
+	desc       : string  `erl:ignore`   # 描述
+	typ        : uint                   # 类型
+	maxStrong  : uint                   # 最大强化等级
+	isConsume  : bool                   # 是否消耗
+	durability : uint     			    # 耐久度
+	isFix      : bool                   # 是否可以修理
+	fixPrice   : Price                  # 修理价格
+	mainAttr   : array(KRange)          # 主属性列表
+	polish     : <EquipPolishs> | uint `lua:skipIndex=all`  # 洗炼
+	reset      : <EquipResets> | uint `lua:skipIndex=all`  # 重置
+	season     : uint `erl:ignore`      # 季节
+	fashion    : string  `erl:ignore`   # 外貌
+	model      : uint `erl:ignore`      # 型号
+}
+
+# 装备
+@type Equips <Fg.Equip[A.N][3.] = array(Equip.id)>
+
+# 装备强化
+@type EquipStrong {
+	id        : uint                    #
+	level     : uint                    # 等级
+	typ       : uint                    # 类型
+	attrs     : array(KV)               # 属性列表
+	price     : array(Price)            # 强化花费
+	upExp     : uint                    # 升级经验
+	strongExp : uint                    # 强化经验
+	mutProb   : MultipleProb            # 倍数概率
+}
+
+# 装备强化
+@type EquipStrongs <Fg.EquipStrong[A.H][3.] = array(EquipStrong.id)>
+
+# 装备洗炼
+@type EquipPolish {
+	id     : uint
+	desc   : string `erl:ignore`        # 说明
+	typ    : uint                       # 装备类型
+	price  : array(Price)               # 洗炼花费
+	attrs  : array(WeightKRange)        # 权重范围属性
+	counts : array(KRange)              # 品质次数限制
+}
+
+
+
+# 装备洗炼
+@type EquipPolishs <Fg.EquipPolish[A.F][3.] = array(EquipPolish.id)> 
+
+# 装备重置
+@type EquipReset {
+	id      : uint                      #
+	desc    : string `erl:ignore`       # 类别说明
+	typ     : uint                      # 装备类型
+	price   : array(Price)              #　重置花费
+	range   : Range                     # 重置范围
+	prob    : uint                      # 重置概率
+	prefixs : array(Weight)             # 前缀权重库
+	cost 	: array(KV) 				# 道具消耗
+}
+
+# 装备重置
+@type EquipResets <Fg.EquipReset[A.H][3.] = array(EquipReset.id)> 
+
+# 装备前缀
+@type EquipPrefix {
+	id         : uint                   #
+	name       : string `erl:ignore`    # 前缀名字
+	desc       : string `erl:ignore`    # 前缀描述
+	rate       : uint                   # 增加万分比率
+	lockNumber : array(KV)              # 锁定数量
+}
+
+# 装备前缀
+@type EquipPrefixs <Fg.EquipPrefix[A.E][3.] = array(EquipPrefix.id)>
+
+# 装备升星
+@type EquipStar {
+	id            : uint                #
+	star          : uint                # 星级
+	level         : uint                # 装备等级
+	color         : uint                # 装备品质
+	price         : array(Price)        # 升星花费
+	consumeNumber : uint                # 消耗装备个数
+	rate  		  : uint                # 升星属性加成万分比率
+}
+
+# 装备升星
+@type EquipStars <Fg.EquipStar[A.G][3.] = array(EquipStar.id)> 
+
+# 装备属性
+@type EqAttr {
+	key           : uint          # 属性枚举值
+	name          : string        # 属性名字
+	short         : string        # 属性简称
+	desc          : string        # 说明
+}
+
+# 装备属性
+@type EqAttrs <Fg.AttrEnum[B.E][2.] = array(EqAttr.key)> 
+
+# 商店
+@type Shop {
+	id        : uint                    #
+	name      : string  `erl:ignore`    #
+	isDisplay : bool    `erl:ignore`    # 是否显示
+	typ       : uint                    # 商城归类
+	rank      : uint    `erl:ignore`    # 排序
+	coinType  : uint                    # 货币类型 
+}
+
+# 商店
+@type Shops <Fg.Shop[A.F][3.] = array(Shop.id)>
+
+# 商品
+@type ShopGoods {
+	id           : uint                       #
+	sid          : uint                       # 商店id
+	gid          : uint                       # 物品id
+	name         : string     `erl:ignore`    # 商品名称
+	rank         : uint       `erl:ignore`    # 商品排序
+	oPrice       : Price                      # 原价
+	cPrice       : Price                      # 现价
+	title        : string     `erl:ignore`    # 标签
+	icon         : string     `erl:ignore`    # 标签图片
+	bid          : uint                       # 广播id
+	lvRange      : Range                      # 购买等级范围
+	purLimDay    : uint                       # 限购天数
+	purLimNumber : uint                       # 限购数量
+	actTime      : string                     # 活动时间
+}
+
+# 商品
+@type IDShopGoods <Fg.ShopGoods[A.K O.Q][3.] = array(ShopGoods.id)>
+
+# 基础资源
+@type BaseRes {
+	typ      : uint           # 类型 
+	name     : string         # 名字
+	icon     : string         # 图标
+	gIcon    : string         # 物品图标
+	color    : uint           # 底色
+	gain     : string         # 获取途径
+	gainDesc : string         # 获取途径描述
+}
+
+# 基础资源
+@type BaseRess <Fg.BaseRes[A.G][3.] = array(BaseRes.typ)>
+
+# 充值
+@type Recharge {
+	id         : uint                     # 
+	name       : string  `erl:ignore`     # 名字
+	rmb        : uint                     # 人民币
+	diamond    : uint                     # 兑换砖石
+	first      : uint                     # 首充赠送砖石
+	icon       : string  `erl:ignore`     # 图标
+	isHasLable : bool    `erl:ignore`     # 是否显示热卖标签
+	purid     : string  `erl:ignore`     #
+	isShowInMall : bool `erl:ignore` # 
+}
+
+# 充值	
+@type Recharges <Fg.Recharge[A.I][3.] = array(Recharge.id)>
+
+# 快速购买
+@type QuickPur {
+	id    : uint                     #
+	typ   : uint     `erl:ignore`    # 资源类型
+	name  : string   `erl:ignore`    # 名字
+	attr  : KV                       # 获得属性
+	price : Price                    # 价格
+	purLimNumber : uint              # 每天限购数量
+}
+
+# 快速购买
+@type QuickPurs <Fg.QuickPur[A.F][3.] = array(QuickPur.id)>
+
+# 加载提示
+@type LoadingText {
+	id       : uint                  # 
+	desc     : string                # 提示内容
+	minLevel : uint                  # 等级下限
+	maxLevel : uint                  # 等级上限
+	group    : uint                  # 组别
+	time     : uint                  # 时间间隔
+}
+
+# 加载提示
+@type LoadingTexts <Fg.LoadingText[A.F][3.] = array(LoadingText.id)>
+
+# 投资基金
+@type Fund {
+	id       : uint                  # 
+	payID    : uint                  # 付费id
+	day      : uint                  # 返还天数
+	rmb      : uint                  # 人民币
+	diamond  : uint                  # 返还钻石
+	multiple : uint                  # 倍数
+}
+
+# 投资基金
+@type Funds <Fg.Fund[A.F][3.] = array(Fund.id)>
+
+# 基金奖励
+@type FundAward {
+	id       : uint                  #  
+	fid      : uint                  # 基金id
+	order    : uint                  # 顺序
+	rewards  : array(Price)          # 奖励
+}
+
+# 基金奖励
+@type FundAwards <Fg.FundAward[A.D][3.] = array(FundAward.id)>
+
+# 首充礼包
+@type FirstGift {
+	id       : uint                  # 
+	goods    : KV                    # 内容物品
+	icon     : string `erl:ignore`   # 图标
+}
+
+# 首充礼包
+@type FirstGifts <Fg.FirstGift[A.C][3.] = array(FirstGift.id)>
+
+# 用户信息
+@type User {
+	level 		: uint 			# 等级
+	maxEnergy 	: uint 			# 体力上限
+	perexp 		: uint 			# 单次钓鱼经验
+	exp 		: uint 			# 升级经验
+	reward 		: array(KV) 	# 升级奖励
+	attrs 		: array(KV) 	# 属性奖励
+}
+
+# 用户
+@type Users <Fg.User[A.F][3.] = array(User.level)>
+
+# 活跃度奖励
+@type DailyReward {
+	id 			: uint 					# id
+	lvRange		: Range					# 等级范围
+	score 		: uint 					# 所需活跃度
+	coinReward 	: array(Price)			# 宝箱货币奖励
+	boxReward  	: array(BOX)			# 宝箱物品奖励
+	icon        : string `erl:ignore`   # 图标
+}
+
+# 活跃度奖励
+@type DailyRewards <Fg.DailyReward[A.F][3.] = array(DailyReward.id)>
+
+# 活跃度任务
+@type DailyTask {
+	id 				: uint 									# id
+	name 			: string 			`erl:ignore` 		# 日常名称
+	icon 			: string 			`erl:ignore` 		# 图标
+	joinLevel 		: uint 									# 参与等级
+	activityType 	: uint 									# 活动类型
+	sort 			: uint									# 显示排序
+	finishNeed 		: string 								# 完成条件
+	numLimit		: uint 									# 次数上限
+	num 			: uint 									# 每次增加活跃度
+	aDate 			: array(uint) 							# 活动日期
+	aTime 			: ActivityTime 							# 活动时间
+	isShowTime 		: uint 				`erl:ignore` 		# 是否显示时间
+	action 			: string 								# 形式
+	limit 			: string 			`erl:ignore` 		# 条件
+	description 	: string 			`erl:ignore` 		# 描述
+	reward 			: array(uint) 		`erl:ignore`		# 奖励
+	board 			: uint 									# 广播
+}
+
+# 活跃度任务
+@type Dailys <Fg.Daily[A.Q][3.] = array(DailyTask.id)>
+
+# 鱼
+@type Fish {
+	id 				: uint
+	name 			: string 			`erl:ignore`
+	fishType 		: <FishTypes> 		`lua:skipIndex=all`	# 鱼类型
+	bossType 		: uint 									# 鱼类型
+	star 			: uint 									# 稀有度
+	revive 			: Price 								# 复活消耗
+	exp 			: float 								# 经验值
+	weight 			: uint 									# 基本体重
+	price 			: uint 									# 单价
+	probability 	: uint 									# 最低权重
+	vigilance 		: KV 									# 警戒
+	floatGroup 		: uint 									# 飘向组
+	pullRate 		: uint 									# 拉力系数
+	pullMin 		: uint 									# 最小拉力值
+	pullMax 		: uint 									# 最大拉力值
+	hp 				: uint 									# 血量系数
+	dropMoney 		: array(Price) 							# 货币掉落
+	dropGoods 		: array(uint) 							# 道具掉落
+	isCultivate 	: uint 									# 是否可以养殖
+	glowPrice 		: uint 									# 成长总价值
+	glowTime 		: uint 									# 成长时间
+	modelMax 		: uint 				`erl:ignore`		# 成长最大体型
+	model 			: uint 				`erl:ignore`		# 模型缩放
+}
+
+# 鱼相关
+@type Fishs <Fg.Fish[A.W][3.] = array(Fish.id)>
+
+@type FishType {
+	fishType 		: uint
+	name 			: string 			`erl:ignore`
+	prefab 			: string 			`erl:ignore`		# 鱼资源名称
+	star 			: uint 									# 稀有度
+	shape 			: uint 									# 体型
+	feedType 		: uint 									# 食性
+	waters 			: uint 									# 水域
+	waterLayer 		: uint 									# 水层
+	character 		: string 			`erl:ignore` 		# 鱼种性格
+	fishMouth 		: string 			`erl:ignore` 		# 鱼口类型
+	swinSpeed 		: string 			`erl:ignore` 		# 游速
+	weight 			: string 			`erl:ignore` 		# 基本体重
+	desc 			: string 			`erl:ignore` 		# 描述
+}
+
+@type FishTypes <Fg.FishType[A.M][3.] = array(FishType.fishType)>
+
+@type FishQuality {
+	grade 			: uint 									# 评级
+	icon 			: string 			`erl:ignore` 		# 鱼的品质
+	ratio 			: uint 									# 品质系数
+}
+
+@type FishQualitys <Fg.FishQuality[A.C][3.] = array(FishQuality.grade)>
+
+@type FishDrop {
+	id 				: uint 									# 掉落id
+	name 			: string 			`erl:ignore` 		# 掉落名字
+	count 			: uint 									# 掉落次数
+	level 			: KV 									# 掉落等级
+	dropstock 		: array(WeightKV) 						# 掉落库
+}
+
+@type FishDrops <Fg.Drop[A.E][3.] = array(FishDrop.id)>
+
+# 升级奖励
+@type LvupAward {
+	level			: uint									# 玩家等级
+	reward			: array(BOX)							# 奖励列表
+}
+
+# 等级奖励
+@type LvupAwards <Fg.LvupAward[A.B][3.] = array(LvupAward.level)>
+
+# 连续签到
+@type DailyBouns {
+	id				: uint									# id
+	lvRange			: Range									# 等级范围
+	num				: uint 									# 连续签到天数
+	icon			: string `erl:ignore`					# 图标
+	reward			: Price									# 签到奖励
+}
+
+@type IDDailyBouns <Fg.DailyBouns[A.E][3.37] = array(DailyBouns.id)>
+
+# 问号提示
+@type FaqTips {
+	id         : uint                     # 
+	notes      : string  `erl:ignore`     # 注释
+	width      : uint                     # tips宽度
+	content    : array(string)  `erl:ignore`     # tips内容
+}
+
+# 问号提示
+@type IDFaqTips <Fg.FaqTips[A.C [D.O]][3.] = array(FaqTips.id)>
+
+############### 输出 ####################
+
+# 全局文件
+@print Global {
+	esys ~> "example/out/sys.config" `template=example/sys.template, suffix=Tmpl`
+	lua > "example/out/globalConf.lua"
+}
+
+# 枚举文件
+@print ColorEnum, CoinEnum, AttrEnum {
+	hrl > "example/out/fg_attr.hrl" `suffix=Tmpl`
+	lua > "example/out/globalDefConf.lua"
+}
+
+# erlang record文件
+@print Grid, Goods, DailyBouns, \
+		FixedGift, RandomGift, Equip, \
+		EquipPolish, EquipReset, EquipPrefix, \
+		EquipStar, EquipStrong, Shop, ShopGoods, Recharge, \
+		QuickPur, Fund, FundAward, \
+		FirstGift, User, DailyReward, \
+		DailyTask, Fish, FishType, \
+		FishQuality, FishDrop, LvupAward, KPrice, Range {
+	hrl > "example/out/fg_tmpl.hrl" `suffix=Tmpl`
+}
+
+# 消息枚举
+@print MessageEnum {
+	hrl > "example/out/logic_message.hrl" `suffix=Tmpl`
+	lua > "example/out/messageDefConf.lua"
+}
+
+# lua 提示
+@print CodeMessageTips {
+	lua > "example/out/messageTipsConf.lua" 
+}
+
+# 格子
+@print Grids {
+	erl > "example/out/grid.config" `suffix=Tmpl`
+	lua > "example/out/gridConf.lua"
+}
+
+# 物品
+@print IDGoods {
+	erl > "example/out/goods.config" `suffix=Tmpl`
+	lua > "example/out/goodsConf.lua"
+}
+
+# 装备
+@print Equips {
+	erl > "example/out/equip.config" `suffix=Tmpl`
+	lua > "example/out/equipConf.lua"
+}
+
+# 装备强化
+@print EquipStrongs {
+	erl > "example/out/equip_strong.config" `suffix=Tmpl`
+	lua > "example/out/equipStrongConf.lua"
+}
+
+# 装备洗练
+@print EquipPolishs {
+	erl > "example/out/equip_polish.config" `suffix=Tmpl`
+	lua > "example/out/equipPolishConf.lua"
+}
+
+# 装备重置
+@print EquipResets {
+	erl > "example/out/equip_reset.config" `suffix=Tmpl`
+	lua > "example/out/equipResetConf.lua"
+}
+
+# 装备前缀
+@print EquipPrefixs {
+	erl > "example/out/equip_prefix.config" `suffix=Tmpl`
+	lua > "example/out/equipPrefixConf.lua"
+}
+
+# 装备升星
+@print EquipStars {
+	erl > "example/out/equip_star.config" `suffix=Tmpl`
+	lua > "example/out/equipStarConf.lua"
+}
+
+# 装备属性
+@print EqAttrs {
+	lua > "example/out/equipAttrConf.lua"
+}
+
+# 商店
+@print Shops {
+	erl > "example/out/shop.config" `suffix=Tmpl`
+	lua > "example/out/shopConf.lua"
+}
+
+# 商品
+@print IDShopGoods {
+	erl > "example/out/shop_goods.config" `suffix=Tmpl`
+	lua > "example/out/shopGoodsConf.lua"
+}
+
+# 基础资源
+@print BaseRess {
+	lua > "example/out/baseResConf.lua"
+}
+
+# 充值
+@print Recharges {
+	erl > "example/out/recharge.config" `suffix=Tmpl`
+	lua > "example/out/rechargeConf.lua"
+
+}
+
+# 快速购买
+@print QuickPurs {
+	erl > "example/out/quick_pur.config" `suffix=Tmpl`
+	lua > "example/out/quickPurConf.lua"
+}
+
+# 加载提示
+@print LoadingTexts {
+	lua > "example/out/loadingTextConf.lua"
+}
+
+# 投资基金
+@print Funds {
+	erl > "example/out/fund.config" `suffix=Tmpl`
+	lua > "example/out/fundConf.lua"
+}
+
+# 基金奖励
+@print FundAwards {
+	erl > "example/out/fundAward.config" `suffix=Tmpl`
+	lua > "example/out/fundAwardConf.lua"
+}
+
+# 首充礼包
+@print FirstGifts {
+	erl > "example/out/firstGift.config" `suffix=Tmpl`
+	lua > "example/out/firstGiftConf.lua"
+}
+
+# 用户
+@print Users {
+	erl > "example/out/user.config" `suffix=Tmpl`
+	lua > "example/out/userConf.lua"
+	json > "example/out/user.json"
+}
+
+# 活跃度奖励
+@print DailyRewards {
+	erl > "example/out/dailyReward.config" `suffix=Tmpl`
+	lua > "example/out/dailyRewardConf.lua"
+}
+
+# 活跃度任务
+@print Dailys {
+	erl > "example/out/dailyTask.config" `suffix=Tmpl`
+	lua > "example/out/dailyTaskConf.lua"
+}
+
+# 鱼相关
+@print Fishs {
+	erl > "example/out/fish.config" `suffix=Tmpl`
+	lua > "example/out/fishConf.lua"
+}
+
+@print FishTypes {
+	erl > "example/out/fishType.config" `suffix=Tmpl`
+	lua > "example/out/fishTypeConf.lua"
+}
+
+@print FishQualitys {
+	erl > "example/out/fishQuality.config" `suffix=Tmpl`
+	lua > "example/out/fishQualityConf.lua"
+}
+
+# 鱼掉落
+@print FishDrops {
+	erl > "example/out/fishDrop.config" `suffix=Tmpl`
+}
+
+# 等级奖励
+@print LvupAwards {
+	erl > "example/out/lvupAward.config" `suffix=Tmpl`
+	lua > "example/out/lvupAwardConf.lua"
+}
+
+# 连续签到
+@print IDDailyBouns {
+	erl > "example/out/dailyBouns.config" `suffix=Tmpl`
+	lua > "example/out/dailyBounsConf.lua"
+}
+
+# 问号提示
+@print IDFaqTips {
+	lua > "example/out/FaqTipsConf.lua"
+}
